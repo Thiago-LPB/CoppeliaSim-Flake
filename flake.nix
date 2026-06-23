@@ -13,7 +13,15 @@
       inherit system;
       config.allowUnfree = true;
     };
-    
+
+    desktopItem = pkgs.makeDesktopItem {
+      name = "coppelia";
+      exec = "coppeliaSim";
+      icon = "coppelia";
+      desktopName = "CoppeliaSim";
+      categories = [ "Development" "Education" ];
+    };
+      
     pythonEnv = pkgs.python3.withPackages (ps: with ps; [
       pyzmq 
       cbor2     
@@ -88,6 +96,8 @@
         makeWrapper $out/coppeliaSim.sh $out/bin/coppeliaSim \
         --set LD_LIBRARY_PATH "${ld_path}" \
         --prefix PATH : "${pythonEnv}/bin"
+
+        cp -r ${desktopItem}/share/applications/*.desktop $out/share/applications/
 
       '';
       dontWrapQtApps = true;
