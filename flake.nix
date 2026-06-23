@@ -2,7 +2,7 @@
   description = "Coppelia-nix flake";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-26.05";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
   };
 
   outputs = { self, nixpkgs }:
@@ -63,14 +63,6 @@
       pname = "Coppelia-nix";
       version = "0.1.0";
 
-      # src = pkgs.lib.cleanSourceWith {
-      #   src = ./.;
-      #   filter = path: type:
-      #     !(pkgs.lib.hasInfix "/build/" path)
-      #     && (baseNameOf path != "flake.nix")
-      #     && (baseNameOf path != "flake.lock")
-      #     && (baseNameOf path != "result");
-      # };
       src = pkgs.fetchurl {
         url = "https://downloads.coppeliarobotics.com/V4_10_0_rev0/CoppeliaSim_Edu_V4_10_0_rev0_Ubuntu24_04.tar.xz";
         hash = "sha256-+2KUfDynAV5/UmgwrqwEoeeRQCc2itIjCmQZD5f2i7o=";
@@ -80,18 +72,6 @@
         makeWrapper 
         libarchive
       ];
-
-      # unpackPhase = ''
-      #   runHook preUnpack
-      #
-      #   dirName=$(tar -tf "$src" | head -1 | cut -d/ -f1)
-      #   tar -xf $src
-      #   mv $dirName coppeliaSrc
-      #
-      #   bsdtar -xf ${rpmSrc}       
-      #
-      #   runHook postUnpack
-      # '';
 
       postUnpack = ''
         bsdtar -xf ${rpmSrc}
@@ -111,16 +91,11 @@
 
       '';
       dontWrapQtApps = true;
-    
 
       meta = {
         description = "Copelia-nix";
         maintainers = [ "Tlpb" ];
       };
-    };
-    apps.${system}.default = {
-      type = "app";
-      program = "${self.packages.${system}.default}/bin/coppeliaSim";
     };
   };
 }
