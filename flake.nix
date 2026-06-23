@@ -90,6 +90,7 @@
         set -x
 
         mkdir -p $out/bin
+        mkdir -p $out/share/applications
 
         cp -r ./* $out/
 
