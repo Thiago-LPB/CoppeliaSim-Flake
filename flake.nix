@@ -14,6 +14,11 @@
         inherit system;
       };
 
+      version = "4.10.0";
+      rev = "rev0";
+      full_version = "V" + (pkgs.lib.replaceStrings ["."] ["_"] version) + "_" + rev;
+      ubuntu_version = "24_04";
+
       desktopItem = pkgs.makeDesktopItem {
         name = "coppelia";
         exec = "coppeliaSim";
@@ -26,8 +31,8 @@
       };
 
       meta = {
-          description = "Copelia-nix";
-          maintainers = [ "Tlpb" ];
+        description = "Copelia-nix";
+        maintainers = [ "Tlpb" ];
       };
 
       pythonEnv = pkgs.python3.withPackages (
@@ -42,6 +47,10 @@
       rpmSrc = pkgs.fetchurl {
         url = "https://rpmfind.net/linux/mageia/distrib/9/x86_64/media/core/updates/lib64sodium23-1.0.18-3.1.mga9.x86_64.rpm";
         hash = "sha256-C7fmrGQqEV4xDalP8MbW84FNJg+jMbXY1QILkHFQ2xs=";
+      };
+      coppeliaIcon = pkgs.fetchurl {
+        url = "https://www.coppeliarobotics.com/assets/img/coppeliaSim.svg";
+        hash = "sha256-4HRnRKKyPz/fq/u3wiK0DzObJ1OGe2+qpibMlVmRlnE=";
       };
 
       buildInputs =
@@ -77,18 +86,18 @@
           zlib
           libbsd
         ]
-        ++ xorg-deps ++ graphics-deps;
+        ++ xorg-deps
+        ++ graphics-deps;
 
       ld_path = pkgs.lib.makeLibraryPath buildInputs;
     in
     {
       packages.${system}.default = pkgs.stdenv.mkDerivation {
-        inherit buildInputs meta;
+        inherit buildInputs meta version;
         pname = "Coppelia-nix";
-        version = "4.10.0";
 
         src = pkgs.fetchurl {
-          url = "https://downloads.coppeliarobotics.com/V4_10_0_rev0/CoppeliaSim_Edu_V4_10_0_rev0_Ubuntu24_04.tar.xz";
+          url = "https://downloads.coppeliarobotics.com/${full_version}/CoppeliaSim_Edu_${full_version}_Ubuntu${ubuntu_version}.tar.xz";
           hash = "sha256-+2KUfDynAV5/UmgwrqwEoeeRQCc2itIjCmQZD5f2i7o=";
         };
 
@@ -120,6 +129,9 @@
           --prefix PATH : "${pythonEnv}/bin"
 
           cp -r ${desktopItem}/share/applications/*.desktop $out/share/applications/
+
+          mkdir -p $out/share/icons/hicolor/scalable/apps
+          install -Dm644 ${coppeliaIcon} $out/share/icons/hicolor/scalable/apps/coppelia.svg
 
         '';
 
