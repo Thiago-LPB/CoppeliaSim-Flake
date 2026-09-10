@@ -49,8 +49,8 @@
         hash = "sha256-C7fmrGQqEV4xDalP8MbW84FNJg+jMbXY1QILkHFQ2xs=";
       };
       coppeliaIcon = pkgs.fetchurl {
-        url = "https://www.coppeliarobotics.com/assets/img/coppeliaSim.svg";
-        hash = "sha256-4HRnRKKyPz/fq/u3wiK0DzObJ1OGe2+qpibMlVmRlnE=";
+        url = "https://www.coppeliarobotics.com/assets/img/coppeliaSim-only-logo.svg";
+        hash = "sha256-OtpbI1aSvLdUNkGLG1BJYwX7tQmFL3cu5NQM1KQ/Rxw=";
       };
 
       buildInputs =
