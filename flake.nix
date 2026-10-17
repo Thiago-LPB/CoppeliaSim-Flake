@@ -32,7 +32,7 @@
 
       meta = {
         description = "Copelia-nix";
-        maintainers = [ "Tlpb" ];
+        maintainers = [ "Thiago-LPB" ];
       };
 
       pythonEnv = pkgs.python3.withPackages (
@@ -90,56 +90,65 @@
         ++ graphics-deps;
 
       ld_path = pkgs.lib.makeLibraryPath buildInputs;
+
+      coppeliaTypes = ["edu" "pro" "lite" "default"]; 
+      pkgsHashes = {
+        edu = "sha256-+2KUfDynAV5/UmgwrqwEoeeRQCc2itIjCmQZD5f2i7o=";
+        pro = "sha256-BT8ZPwcjz1h7wQ3NOCD9mCboAuFa8dfh2jVHuQqHqSQ=";
+        lite = "sha256-uV+rL/brLRq8fnfoCwIEBOx6P2OW7y43LJRF0DyxNuI=";
+      };
+      forAllTypes = pkgs.lib.genAttrs coppeliaTypes;
+      finalType = type: if type == "default" then "edu" else type;
     in
     {
-      packages.${system}.default = pkgs.stdenv.mkDerivation {
-        inherit buildInputs meta version;
-        pname = "Coppelia-nix";
+      packages.${system} = forAllTypes(type: 
+        pkgs.stdenv.mkDerivation {
+          inherit buildInputs meta version;
+          pname = "Coppelia-nix";
 
-        src = pkgs.fetchurl {
-          url = "https://downloads.coppeliarobotics.com/${full_version}/CoppeliaSim_Edu_${full_version}_Ubuntu${ubuntu_version}.tar.xz";
-          hash = "sha256-+2KUfDynAV5/UmgwrqwEoeeRQCc2itIjCmQZD5f2i7o=";
-        };
+          src = pkgs.fetchurl {
+            url = "https://downloads.coppeliarobotics.com/${full_version}/CoppeliaSim_${pkgs.lib.strings.toSentenceCase (finalType type)}_${full_version}_Ubuntu${ubuntu_version}.tar.xz";
+            hash = pkgsHashes.${type};
+          };
 
-        nativeBuildInputs = with pkgs; [
-          makeWrapper
-          libarchive
-        ];
+          nativeBuildInputs = with pkgs; [
+            makeWrapper
+            libarchive
+          ];
 
-        postUnpack = ''
-          bsdtar -xf ${rpmSrc}
-          cp -r usr/lib64/* $sourceRoot
-        '';
+          postUnpack = ''
+            bsdtar -xf ${rpmSrc}
+            cp -r usr/lib64/* $sourceRoot
+          '';
 
-        installPhase = ''
-          set -x
+          installPhase = ''
+            set -x
 
-          mkdir -p $out/bin
-          mkdir -p $out/share/applications
+            mkdir -p $out/bin
+            mkdir -p $out/share/applications
 
-          cp -r ./* $out/
+            cp -r ./* $out/
 
-          sed -i 's|export LD_LIBRARY_PATH=.*|export LD_LIBRARY_PATH="$dirname:$LD_LIBRARY_PATH"|' \
-          $out/coppeliaSim.sh
+            sed -i 's|export LD_LIBRARY_PATH=.*|export LD_LIBRARY_PATH="$dirname:$LD_LIBRARY_PATH"|' \
+            $out/coppeliaSim.sh
 
-          makeWrapper $out/coppeliaSim.sh $out/bin/coppeliaSim \
-          --unset QT_STYLE_OVERRIDE \
-          --set QT_QPA_PLATFORM xcb \
-          --set LD_LIBRARY_PATH "${ld_path}" \
-          --prefix PATH : "${pythonEnv}/bin"
+            makeWrapper $out/coppeliaSim.sh $out/bin/coppeliaSim \
+            --unset QT_STYLE_OVERRIDE \
+            --set QT_QPA_PLATFORM xcb \
+            --set LD_LIBRARY_PATH "${ld_path}" \
+            --prefix PATH : "${pythonEnv}/bin"
 
-          cp -r ${desktopItem}/share/applications/*.desktop $out/share/applications/
+            cp -r ${desktopItem}/share/applications/*.desktop $out/share/applications/
 
-          mkdir -p $out/share/icons/hicolor/scalable/apps
-          install -Dm644 ${coppeliaIcon} $out/share/icons/hicolor/scalable/apps/coppelia.svg
+            mkdir -p $out/share/icons/hicolor/scalable/apps
+            install -Dm644 ${coppeliaIcon} $out/share/icons/hicolor/scalable/apps/coppelia.svg
 
-        '';
-
-      };
-      apps.${system}.default = {
+          '';
+      });
+      apps.${system} = forAllTypes(type: {
         inherit meta;
         type = "app";
-        program = "${self.packages.${system}.default}/bin/coppeliaSim";
-      };
+        program = "${self.packages.${system}.${finalType type}}/bin/coppeliaSim";
+      });
     };
 }
