@@ -27,13 +27,13 @@ environment.systemPackages = with pkgs; [
 
 ### Edu version
 ```bash
-$ nix run github:Thiago-LPB/CoppeliaSim-Flake
+nix run github:Thiago-LPB/CoppeliaSim-Flake
 ```
 ### Lite version
 ```bash
-$ nix run github:Thiago-LPB/CoppeliaSim-Flake#lite
+nix run github:Thiago-LPB/CoppeliaSim-Flake#lite
 ```
 ### Pro version
 ```bash
-$ nix run github:Thiago-LPB/CoppeliaSim-Flake#pro
+nix run github:Thiago-LPB/CoppeliaSim-Flake#pro
 ```
