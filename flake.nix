@@ -108,7 +108,7 @@
 
           src = pkgs.fetchurl {
             url = "https://downloads.coppeliarobotics.com/${full_version}/CoppeliaSim_${pkgs.lib.strings.toSentenceCase (finalType type)}_${full_version}_Ubuntu${ubuntu_version}.tar.xz";
-            hash = pkgsHashes.${type};
+            hash = pkgsHashes.${finalType type};
           };
 
           nativeBuildInputs = with pkgs; [
